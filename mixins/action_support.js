@@ -15,6 +15,15 @@ Flame.ActionSupport = {
     payload: null,
 
     fireAction: function(action, payload) {
+        var disableUntilComplete = this.get('disableUntilComplete');
+        if (this.isDestroyed || disableUntilComplete && this.disabled) {
+            return false;
+        } else if (disableUntilComplete) {
+            // We use this non-observable property so it's set immediately
+            this.disabled = true;
+            // If the action really takes ages, prob good idea to disable the button also
+            this.set('isDisabled', true)
+        }
         var target = this.get('target') || this;
 
         while ('string' === typeof target) {  // Use a while loop: the target can be a path gives another path
@@ -31,7 +40,12 @@ Flame.ActionSupport = {
             if (!actionFunction) throw 'Target %@ does not have action %@'.fmt(target, action);
             var actualPayload = !Ember.none(payload) ? payload : this.get('payload');
             if (Ember.none(actualPayload)) { actualPayload = this; }
-            return actionFunction.call(target, actualPayload, action, this);
+            var that = this;
+            var enableCallback = function() {
+                that.disabled = false;
+                this.set('isDisabled', false)
+            }
+            return actionFunction.call(target, actualPayload, action, this, enableCallback);
         }
 
         return false;

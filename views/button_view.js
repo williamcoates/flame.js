@@ -61,16 +61,14 @@ Flame.ButtonView = Flame.View.extend(Flame.ActionSupport, Flame.Statechart, {
         },
 
         enterState: function() {
-            this.get('owner').set('isHovered', true);
+            this.get('owner').setUnlessDestroyed('isHovered', true);
         },
 
         exitState: function() {
             var owner = this.get('owner');
             // Because the mouseLeave event is executed via Ember.run.later, it can happen that by the time we exitState
             // the owner has been destroyed
-            if (!owner.isDestroyed) {
-                owner.set('isHovered', false);
-            }
+            owner.setUnlessDestroyed('isHovered', false);
         }
     }),
 
@@ -79,7 +77,7 @@ Flame.ButtonView = Flame.View.extend(Flame.ActionSupport, Flame.Statechart, {
             var owner = this.get('owner');
             owner.fireAction();
             if (owner.get('isSticky')) {
-                owner.set('isSelected', !owner.get('isSelected'));
+                owner.setUnlessDestroyed('isSelected', !owner.get('isSelected'));
             }
         },
 
@@ -101,11 +99,11 @@ Flame.ButtonView = Flame.View.extend(Flame.ActionSupport, Flame.Statechart, {
         },
 
         enterState: function() {
-            this.get('owner').set('isActive', true);
+            this.get('owner').setUnlessDestroyed('isActive', true);
         },
 
         exitState: function() {
-            this.get('owner').set('isActive', false);
+            this.get('owner').setUnlessDestroyed('isActive', false);
         }
     }),
 
